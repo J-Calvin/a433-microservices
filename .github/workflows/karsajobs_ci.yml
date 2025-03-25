@@ -40,4 +40,4 @@ jobs: # Mendefinisikan jobs yang akan dijalankan ketika workflow berjalan menjal
         run: docker login --username j-calvin --password ${{ secrets.PACKAGES_TOKEN }} ghcr.io
 
       - name: Docker Push
-        run: docker push ghcr.io/J-Calvin/juliuscalvin/karsajobs:latest
+        run: docker push ghcr.io/j-calvin/juliuscalvin/karsajobs:latest
