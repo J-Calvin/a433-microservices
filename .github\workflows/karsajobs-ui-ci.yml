@@ -1,0 +1,29 @@
+name: "karsajobs-ui-ci" # Memberikan nama pada Github Actions workflow
+
+on: # Workflow akan berjalan setiap ada push pada branch “karsajobs-ui”.
+  push:
+    branches: ["karsajobs-ui"]
+
+jobs: # Mendefinisikan jobs yang akan dijalankan ketika workflow berjalan menjalankan 2 job, yaitu lint-dockerfile, dan build-app-karsajobs
+  lint-dockerfile: # lint-dockerfile berisi proses untuk menginstal hadolint dan menjalankannya terhadap berkas Dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ./Dockerfile
+
+  build-app-karsajobs: # Berisi perintah untuk build dan push image.
+    needs: lint-dockerfile # lint-dockerfile harus berhasil sebelum menjalankan perintah build-app-karsajobs.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Docker build
+        run: docker build -t ghcr.io/j-calvin/juliuscalvin/karsajobs-ui:latest .
+
+      - name: Docker login
+        run: docker login --username j-calvin --password ${{ secrets.PACKAGES_TOKEN }} ghcr.io
+
+      - name: Docker push
+        run: docker push ghcr.io/j-calvin/juliuscalvin/karsajobs-ui:latest
