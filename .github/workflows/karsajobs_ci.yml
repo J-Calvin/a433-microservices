@@ -1,0 +1,43 @@
+name: "karsajobs-ci" # Memberikan nama pada Github Actions workflow
+
+on: # Workflow akan berjalan setiap ada push pada branch “karsajobs”.
+  push:
+    branches: ["karsajobs"] 
+
+jobs: # Mendefinisikan jobs yang akan dijalankan ketika workflow berjalan menjalankan 3 job, yaitu lint-dockerfile, test, dan build-app-karsajobs
+  lint-dockerfile: # lint-dockerfile berisi proses untuk menginstal hadolint dan menjalankannya terhadap berkas Dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ./Dockerfile
+
+  test: # Berisi perintah untuk menjalankan unit test untuk backend dengan perintah: go test -v -short --count=1 $(go list ./...)
+    needs: lint-dockerfile # lint-dockerfile harus berhasil sebelum menjalankan perintah test.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+
+      - name: Test App
+        run: go test -v -short --count=1 $(go list ./...)
+
+  build-app-karsajobs: # Berisi perintah untuk build dan push image.
+    needs: [lint-dockerfile, test] # lint-dockerfile dan test harus berhasil sebelum menjalankan perintah build-app-karsajobs.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Docker Build
+        run: docker build -t ghcr.io/J-Calvin/juliuscalvin/karsajobs:latest .
+
+      - name: Docker Login
+        run: docker login --username J-Calvin --password ${{ secrets.PACKAGES_TOKEN }} ghcr.io
+
+      - name: Docker Push
+        run: docker push ghcr.io/J-Calvin/juliuscalvin/karsajobs:latest
