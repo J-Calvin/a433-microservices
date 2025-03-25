@@ -34,10 +34,10 @@ jobs: # Mendefinisikan jobs yang akan dijalankan ketika workflow berjalan menjal
       - uses: actions/checkout@v3
 
       - name: Docker Build
-        run: docker build -t ghcr.io/J-Calvin/juliuscalvin/karsajobs:latest .
+        run: docker build -t ghcr.io/j-calvin/juliuscalvin/karsajobs:latest .
 
       - name: Docker Login
-        run: docker login --username J-Calvin --password ${{ secrets.PACKAGES_TOKEN }} ghcr.io
+        run: docker login --username j-calvin --password ${{ secrets.PACKAGES_TOKEN }} ghcr.io
 
       - name: Docker Push
         run: docker push ghcr.io/J-Calvin/juliuscalvin/karsajobs:latest
